@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-manual
+  namespace: elastic-dev
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: log-manual
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: log-manual
+    spec:
+      containers:
+      - command:
+        - logstash
+        image: logstash:7.8.0
+        imagePullPolicy: IfNotPresent
+        name: logstash
+        ports:
+        - containerPort: 5044
+          protocol: TCP
+        env:
+        - name: ES_HOSTS
+          value: "http://es-manual:9200/"
+        # - name: ES_USER
+        #   value: "elastic"
+        # - name: ES_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: elasticsearch-es-elastic-user
+        #       key: elastic
+        resources: {}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/logstash/config
+        - name: logstash-pipeline-volume
+          mountPath: /usr/share/logstash/pipeline
+        # - name: cert-ca
+        #   mountPath: "/etc/logstash/certificates"
+        #   readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: logstash-configmap
+          items:
+            - key: logstash.yaml
+              path: logstash.yaml
+      - name: logstash-pipeline-volume
+        configMap:
+          name: logstash-configmap
+          items:
+            - key: logstash.conf
+              path: logstash.conf
+      # - name: cert-ca
+      #   secret:
+      #     secretName: elasticsearch-es-http-certs-public
+
+status: {}

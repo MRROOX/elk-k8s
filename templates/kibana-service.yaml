@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-09-30T15:51:20Z"
+  labels:
+    app: kib-manual
+  name: kib-manual
+  namespace: elastic-dev
+  resourceVersion: "38068"
+  uid: 56aa8076-7951-4498-86ce-d3205f5d1929
+spec:
+  clusterIP: 10.97.223.182
+  clusterIPs:
+  - 10.97.223.182
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 30382
+    port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    app: kib-manual
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
